@@ -6,6 +6,8 @@
 
 in this app we created a form that takes data input from useres then request a query from an API to get the data requested and then render it using REACT code with components
 
+![Request-Response Cycle](FLOW.png)
+
 ## Getting Started
 
 1. i made components for App, Headers, Main, Footer
