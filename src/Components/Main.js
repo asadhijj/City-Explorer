@@ -1,56 +1,102 @@
 import React from "react";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import "bootstrap/dist/css/bootstrap.min.css";
+import Weather from "./Weather"
+import Movies from "./Movies"
+import Location from "./Location";
 
 class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      description: "",
       date: "",
       display_name: "",
       errFlag: false,
       lat: "",
       lon: "",
       mapFlag: false,
+      weatherData:[],
+      movieData: [],
     };
   }
 
   getLocationData = async (event) => {
     event.preventDefault();
-    const cityName = event.target.city.value;
-    const URL = `http://localhost:4000/weather?searchQuery=${cityName}`;
+    const searchQuery = event.target.city.value;
+    const URL = `https://eu1.locationiq.com/v1/search?key=${process.env.API_KEY}&q=${searchQuery}&format=json`
 
     try {
-      let resResult = (await axios.get(URL)).data;
+      const resResult = await axios.get(URL);
+      this.getWeatherData(resResult.data[0])
+      this.getMovieData(searchQuery)
 
-      const descriptionR = resResult.forecast.map(
-        (e) => `${e.date}: ${e.description}`
-      );
       this.setState({
-        description: descriptionR.join(" "),
-        display_name: cityName,
-        lat: resResult.lat,
-        lon: resResult.lon,
-        mapFlag: true,
         errFlag: false,
+        display_name: resResult.data[0].display_name,
+        lat: resResult.data[0].lat,
+        lon: resResult.data[0].lon,
+        mapFlag: true,
       });
     } catch {
       console.log("err");
       this.setState({
         errFlag: true,
-        description: "",
         display_name: "",
         lat: "",
         lon: "",
         mapFlag: false,
+
       });
     }
   };
+
+  getWeatherData =async (data) => {
+    const URL_Weather = `http://localhost:4000/weather?lon=${data.lon}&lat=${data.lat}`;
+    
+    try 
+    {
+      const weatherData = await axios.get(URL_Weather);
+      this.setState({
+        date : data.datetime,
+        display_name: data.display_name,
+        lat: data.lat,
+        lon: data.lon,
+        weatherData : weatherData.data
+      })
+    }
+    catch {
+      this.setState({
+        display_name: "",
+        lat: "",
+        lon: "",
+        weatherData : []
+      })
+   
+    }
+  }
+
+  getMovieData =async (data) =>{
+    const URL_Movie = `http://localhost:4000/Movies?searchQuery=${data}`;
+    
+
+    try {
+      const movieData = await axios.get(URL_Movie);
+      this.setState ({
+        movieData : movieData.data
+      })
+    }
+    catch {
+      this.setState({
+        movieData : []
+      })
+    }
+
+  }
   render() {
     return (
+      <>
       <div style={{ backgroundColor: "cornsilk" }}>
         <Form
           style={{
@@ -63,44 +109,28 @@ class Main extends React.Component {
           <input type="text" name="city" placeholder="Enter a city" />
           <Button type="submit">Explore !</Button>
         </Form>
+        </div>
         <hr></hr>
 
-        <h3
-          style={{
-            backgroundColor: "cornsilk",
-            marginLeft: "10px",
-            marginBottom: "20px",
-          }}
-        >
-          Display name : {this.state.display_name}
-        </h3>
-
-        <p style={{ backgroundColor: "cornsilk", marginLeft: "10px" }}>
-          Forecast Information :{this.state.description}
-          {this.state.date}
-        </p>
-        {this.state.mapFlag && (
-          <img
-            alt="map"
-            style={{
-              borderRadius: "10px",
-              width: "800px",
-              height: "400px",
-              marginLeft: "10px",
-            }}
-            src={`https://maps.locationiq.com/v3/staticmap?key=pk.7aedc85ff3620b0d3b6865ccab5efd25&center=${this.state.lat},${this.state.lon}&zoom=1-18`}
-          />
-        )}
-        <p style={{ backgroundColor: "cornsilk", marginLeft: "10px" }}>
-          Longtitude : {this.state.lon}
-        </p>
-        <p style={{ backgroundColor: "cornsilk", marginLeft: "10px" }}>
-          Latitude : {this.state.lat}
-        </p>
-
-        {this.state.errFlag && <h4>Error : sorry something went wrong!</h4>}
-      </div>
+          <div>
+            <Location
+            display_name={this.state.display_name}
+            longtitude ={this.state.lon}
+            latitude ={this.state.lat}
+            map={this.state.mapFlag}
+            error={this.state.errFlag}
+            ></Location>
+          </div>
+          <div>
+            <Weather forecast = {this.state.weatherData}></Weather>
+          </div>
+          <div>
+            <Movies films = {this.state.movieData}></Movies>
+          </div>
+          </>  
     );
   }
 }
+  
+
 export default Main;
