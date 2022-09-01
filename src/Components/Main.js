@@ -25,7 +25,7 @@ class Main extends React.Component {
   getLocationData = async (event) => {
     event.preventDefault();
     const searchQuery = event.target.city.value;
-    const URL = `https://eu1.locationiq.com/v1/search?key=${process.env.API_KEY}&q=${searchQuery}&format=json`
+    const URL = `https://eu1.locationiq.com/v1/search?key=pk.7ebfb42eef13c373d14686d9a5a9d808&q=${searchQuery}&format=json`
 
     try {
       const resResult = await axios.get(URL);
