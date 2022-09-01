@@ -53,7 +53,7 @@ class Main extends React.Component {
   };
 
   getWeatherData =async (data) => {
-    const URL_Weather = `http://localhost:4000/weather?lon=${data.lon}&lat=${data.lat}`;
+    const URL_Weather = `https://city-explorer-on-duty.herokuapp.com/weather?lon=${data.lon}&lat=${data.lat}`;
     
     try 
     {
@@ -78,7 +78,7 @@ class Main extends React.Component {
   }
 
   getMovieData =async (data) =>{
-    const URL_Movie = `http://localhost:4000/Movies?searchQuery=${data}`;
+    const URL_Movie = `https://city-explorer-on-duty.herokuapp.com/Movies?searchQuery=${data}`;
     
 
     try {
